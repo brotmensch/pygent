@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 import sys
+import argparse
 load_dotenv()
 api_key=os.environ.get("GEMINI_API_KEY")
 client=genai.Client(api_key=api_key)
@@ -10,8 +11,16 @@ client=genai.Client(api_key=api_key)
 
 
 def main():
-    print("Hello from pygent!")
-    user_prompt=sys.argv[1]
+    
+    parser = argparse.ArgumentParser(description="A tool that generates AI responses with optional verbose output.")
+    parser.add_argument("prompt", type=str, help="The user's prompt for the AI.")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output.")
+    
+    args=parser.parse_args()
+    
+    
+    user_prompt=args.prompt
+    is_verbose=args.verbose
     
     messages=[
         types.Content(role="user",parts=[types.Part(text=user_prompt)])
@@ -28,7 +37,7 @@ def main():
     )
    
     print(response.text)
-    if "--verbose" in list(sys.argv):
+    if is_verbose:
         print("User prompt: " +user_prompt)
         print("Prompt tokens: "+str(response.usage_metadata.prompt_token_count))
         print("Response tokens: "+str(response.usage_metadata.candidates_token_count))
